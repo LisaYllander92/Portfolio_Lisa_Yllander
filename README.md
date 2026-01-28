@@ -41,8 +41,8 @@ Purpose: Developing specialized skills in SQL and relational database management
     - Conducted database tuning to identify bottlenecks and implemented optimizations such as indexing and denormalization.
     - Explored database security protocols, including access management and protection against threats like SQL injections.
 
-Links to Github repo:
-[SQL course repo](https://github.com/LisaYllander92/SQL_DE25_LisaYllander)
+Links to Github repo:\
+[SQL course repo](https://github.com/LisaYllander92/SQL_DE25_LisaYllander) \
 [Lab repo](https://github.com/LisaYllander92/SQL_LAB_DE25_LisaYllander)
 
 
