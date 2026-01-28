@@ -8,3 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Python virtuell miljö
+.venv/
+__pycache__/
+
+# Skyddade uppgifter
+.env

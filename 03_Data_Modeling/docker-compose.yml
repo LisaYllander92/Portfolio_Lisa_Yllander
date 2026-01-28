@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: yrkco
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
+    ports: # "port mapping" mellan värddatorn (din laptop) och containern
+      - "${POSTGRES_PORT}:5432" # samma som: "5432:5432" (standardport för PostgreSQL)   
+
+    volumes: # Skillnad mellan namngivna volymer (named volumes) och direktkopplingar (bind mounts)
+      - postgres_data:/var/lib/postgresql # Namngiven volym för att databasens innehåll ska sparas (persistent lagring)
+      #- ./sql:/docker-entrypoint-initdb.d
+      - ./sql:/sql # Direktkoppling (bind mount) för att dela filer mellan datorn och containern
+      # Till vänster om : - den nuvarande mappen 'sql' på din dator. 
+      # Till höger om : - skapar en mapp som heter 'sql' inuti Docker-containern.
+      # Syfte: Kopplar ihop de två mapparna så att ändringar på din dator syns direkt i containern.
+
+    healthcheck: # Definierar en kontroll som körs när containern är uppe
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-yrkesco}"] # Kontrollerar om databasen är redo att ta emot anslutningar
+      interval: 5s # Väntar 5 sekunder mellan varje kontroll
+      retries: 5 # Antal försök innan den ger upp
+      timeout: 3s # Tid för varje enskilt försök. Om det tar mer än 3 sekunder räknas det som misslyckat.
+
+volumes: # Namngiven volym (syns under "Volumes" i Dockers gränssnitt/GUI)
+         # Här skapas den faktiska lagringsplatsen 'postgres_data'
+  postgres_data:

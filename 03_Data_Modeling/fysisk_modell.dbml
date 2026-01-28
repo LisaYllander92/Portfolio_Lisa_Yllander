@@ -1,0 +1,138 @@
+Table Anlaggning{
+  anlaggnings_id INTEGER [PRIMARY KEY]
+  byggnads_ar INTEGER [NOT NULL]
+  adress_id INTEGER [ref: > Adress.adress_id]
+}
+
+Table Adress{
+  adress_id INTEGER [PRIMARY KEY]
+  gatu_namn VARCHAR(100) [NOT NULL]
+  gatu_nr VARCHAR(10) [NOT NULL]
+  post_nr VARCHAR(10) [NOT NULL]
+  ort VARCHAR(50) [NOT NULL]
+}
+
+Table Anstallda{
+  anstallnings_id INTEGER [PRIMARY KEY]
+  a_fornamn VARCHAR(50) [NOT NULL]
+  a_efternamn VARCHAR(100) [NOT NULL]
+  jobb_titel VARCHAR(100) [NOT NULL]
+  jobb_mail VARCHAR(100) [NOT NULL]
+  avdelning VARCHAR(100) [NOT NULL]
+  arbets_beskrivning VARCHAR(500) 
+  ar_utbildare BOOLEAN
+  ar_ul BOOLEAN
+  anlaggnings_id INTEGER [ref: > Anlaggning.anlaggnings_id]
+}
+
+Table AnstalldaUppgifter{ Note: "Begränsad åtkomst"
+  au_id INTEGER [PRIMARY KEY]
+  a_person_nr VARCHAR(13) [UNIQUE, NOT NULL]
+  a_email VARCHAR(254) [UNIQUE, NOT NULL]
+  a_tele_nr VARCHAR(20) [NOT NULL]
+  konto_nr VARCHAR [NOT NULL]
+  lon FLOAT
+  anstallnings_id INTEGER [ref: - Anstallda.anstallnings_id]
+  adress_id INTEGER [ref: > Adress.adress_id]
+}
+
+Table UtbildningsLedare{ Note: "En ul har han om max tre klasser åt gången"
+  ul_id INTEGER [PRIMARY KEY]
+  anstallnings_id INTEGER [ref: > Anstallda.anstallnings_id]
+}
+
+Table Utbildare{ Note: "Utbildare kan vara antingen konsulter ELLER anställa"
+  utbildare_id INTEGER [PRIMARY KEY]
+  specialisering VARCHAR(100)
+  anstallnings_id INTEGER [ref: > Anstallda.anstallnings_id] //Går endast att välja eantingen den ena...
+  konsult_id INTEGER [UNIQUE, ref: > Konsult.konsult_id] //... ELLER den andra
+}
+
+Table Konsult{
+  konsult_id INTEGER [PRIMARY KEY]
+  k_fornamn VARCHAR(50) [NOT NULL] // konsulterns namn lagras här för snabbare åtkomst
+  k_efternamn VARCHAR(100) [NOT NULL]
+  timarvode FLOAT [NOT NULL]
+  foretags_id INTEGER [NOT NULL, ref: > Foretag.foretags_id]
+}
+
+Table Foretag{
+  foretags_id INTEGER [PRIMARY KEY]
+  org_nr VARCHAR(50) [NOT NULL]
+  foretags_namn VARCHAR(150) [NOT NULL]
+  f_skatt_status BOOL [NOT NULL]
+  adress_id INTEGER [ref: > Adress.adress_id]
+}
+
+Table Klass{
+  klass_id INTEGER [PRIMARY KEY]
+  klass_namn VARCHAR(50) [NOT NULL]
+  start_ar INTEGER [NOT NULL]
+  omgang INTEGER [NOT NULL] //Ett program beviljas i tre omgångar (dvs tre klasser/årsgångar)
+  program_id INTEGER [ref: > Program.program_id]
+  ul_id INTEGER [ref: > UtbildningsLedare.ul_id] //En ul har han om MAX tre klasser (åt gången)
+}
+
+Table Program{ Note: "Ett program beviljas i tre omgångar, dvs tre klasser"
+  program_id INTEGER [PRIMARY KEY]
+  program_namn VARCHAR(50) [NOT NULL]
+  start_datum DATE [NOT NULL]
+  slut_datum DATE [NOT NULL]
+}
+
+Table ProgramInnehall{
+  program_id INTEGER [PRIMARY KEY, ref: > Program.program_id]
+  kurs_id INTEGER [PRIMARY KEY, ref: > Kurs.kurs_id]
+}
+
+Table Kurs{ Note: "En kurs kan ingå i ett program och/eller vara fristående"
+  kurs_id INTEGER [PRIMARY KEY]
+  kurs_namn VARCHAR(50) [NOT NULL]
+  kurs_kod VARCHAR(50) [NOT NULL]
+  poang INTEGER [NOT NULL]
+  kurs_beskrivning VARCHAR(250) [NOT NULL]
+}
+
+Table KursGenomforande{
+  genomforande_id INTEGER [PRIMARY KEY]
+  start_datum DATE [NOT NULL]
+  slut_datum DATE [NOT NULL]
+  termin VARCHAR(20) [NOT NULL]
+  status VARCHAR(50) [NOT NULL]
+  utbildare_id INTEGER [ref: > Utbildare.utbildare_id]
+  kurs_id INTEGER [ref: > Kurs.kurs_id]
+}
+
+Table Student{
+  student_id INTEGER [PRIMARY KEY]
+  s_fornamn VARCHAR(50) [NOT NULL]
+  s_efternamn VARCHAR(100) [NOT NULL]
+  klass_id INTEGER [ref: > Klass.klass_id]
+}
+
+Table LIA_Matchning{ Note: "En student kan genomgå en eller flera LIA-perioder"
+  lia_id INTEGER [PRIMARY KEY]
+  handledare_namn VARCHAR(100)
+  period VARCHAR(20)
+  student_id INTEGER [NOT NULL, ref: > Student.student_id]
+  foretags_id INTEGER [NOT NULL, ref: > Foretag.foretags_id]
+}
+
+Table StudentUppgifter{ Note: "Begränsad åtkomst"
+  su_id INTEGER [PRIMARY KEY]
+  s_person_nr VARCHAR(13) [UNIQUE, NOT NULL]
+  s_email VARCHAR(254) [UNIQUE, NOT NULL]
+  s_tele_nr VARCHAR(20)
+  adress_id INTEGER [NOT NULL, ref: > Adress.adress_id]
+  student_id INTEGER [NOT NULL, ref: - Student.student_id] 
+}
+
+Table Registrering{
+  registrerings_id INTEGER [PRIMARY KEY]
+  registerings_datum DATE [NOT NULL]
+  betyg VARCHAR(10) 
+  betygs_datum DATE 
+  reg_status VARCHAR(50) [NOT NULL]
+  genomforande_id INTEGER [NOT NULL, ref: > KursGenomforande.genomforande_id]
+  student_id INTEGER [NOT NULL, ref: > Student.student_id]
+}
